@@ -6,28 +6,28 @@ caminho(Pecas,N,L,C):-
 	generatePuzzle(T, L, C),
 	length(Pecas,N),
 	findall(X-Y,verificaPeca(T, X,Y, 1),Sols),
-	teste(Pecas, Sols),
-	diferentes(Pecas),
-	write(Pecas).
+	escolhePecas(Pecas, Sols),
+	diferentes(Pecas), !.
+	
+caminho(Pecas, N,L,C):-caminho(Pecas,N,L,C).	
 
 diferentes([]).
 diferentes([H|T]):-
+	write(H-T),
 	\+ member(H, T),
 	diferentes(T).
-	
+		
 choose([], []).
 choose(List, Elt) :-
 	length(List, Length),
 	random(0, Length, Index),
 	nth0(Index, List, Elt).
 
-teste([],_).
-teste([H|T], PecasLivres):-
+escolhePecas([],_).
+escolhePecas([H|T], PecasLivres):-
 	choose(PecasLivres, X),
-	member(X, [H|T]),
-	teste(T, PecasLivres).
-	
-	
+	member(X, [H]),
+	escolhePecas(T, PecasLivres).
 	
 verificaPeca(T,X,Y,Jogador) :- verificaPecaAux(T,X,Y,Jogador,1).
 verificaPecaAux([T|_],X,Y,Jogador,Y) :-
@@ -41,7 +41,6 @@ verificaPecaLinha([_|R], X, Jogador, Coluna) :-
 	N1 is Coluna+1,
 	verificaPecaLinha(R, X, Jogador, N1).
 	
-
 limite([], 0).
 limite([0|T], M):-
 	M > 0,
@@ -137,12 +136,14 @@ generateLine([0|T], M):-
 	M1 is M-1,
 	generateLine(T, M1).	
 
-imprime([]).	
-imprime([H|T]):-
-	imprime2(H),
-	nl,
-	imprime(T).
-imprime2([]).	
-imprime2([H|T]):-
-	write(H), write(' '),
-	imprime2(T).
+concatenate([], L, L).
+concatenate([X|L1], L2, [X|L3]) :-
+	concatenate(L1, L2, L3).	
+
+tabToList(T,Lista):-
+	tabToList2(T, Lista, _).
+tabToList2([], F, [F|_]).
+tabToList2([H|T], Lista, [H3|T3]):-
+	concatenate(H3, H, H4),
+	tabToList2(T, Lista, [H4|T3]).
+	
