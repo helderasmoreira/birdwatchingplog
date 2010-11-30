@@ -2,19 +2,94 @@
 :-use_module(library(clpfd)).
 :-use_module(library(lists)).
 
-caminho(Pecas,N,L,C):-
+remove_at(X,[X|Xs],1,Xs).
+remove_at(X,[Y|Xs],K,[Y|Ys]) :- K > 1, 
+   K1 is K - 1, remove_at(X,Xs,K1,Ys).
+
+insert_at(X,L,K,R) :- remove_at(X,R,K,L).
+
+getPos(X,Y, Pos) :-
+	Pos is Y*11+X.
+
+tabuleiro(T) :-
+	T = [0,0,0,0,0,0,0,0,0,0,0,
+		 0,2,1,1,2,0,0,1,1,1,0,
+		 0,1,0,1,0,1,0,1,0,1,1,
+		 0,1,1,1,1,1,1,1,1,1,0,
+		 0,0,1,0,1,0,1,0,1,0,0,
+		 0,0,1,1,1,1,1,1,1,0,0,
+		 0,0,1,0,1,0,1,0,1,0,0,
+		 0,1,1,1,1,1,1,1,1,1,0,
+		 1,1,0,1,0,1,0,1,0,1,0,
+		 0,1,1,1,1,1,1,1,1,1,0,
+		 0,0,0,0,0,0,0,0,0,0,0].
+		 		 
+		
+/* 
+   Verde = A
+   Vermelho = B
+   Azul = C
+   Amarelo = D
+   Roxo = E
+*/
+		
+oneBird([P1,P2,P3,P4,P5]) :-
+	tabuleiro(T),
+	Caminho = [A,B,C,D,E],
+	domain(Caminho,1,5),
+
+	
+	element(A,[15,51,83],P1),
+	element(B,[18,96,82],P2),
+	element(C,[40,41,86],P3),
+	element(D,[64,84,102],P4),
+	element(E,[73,105,108],P5),
+	
+	existeCaminho(89,P1,T),
+	
+	labeling([],Caminho),
+	write(Soma).
+		 
+	
+adjacente(Inicial,Final, Tabuleiro):- Final is Inicial-1, nth1(Final, Tabuleiro,1)  .
+adjacente(Inicial,Final, Tabuleiro):- Final is Inicial+1, nth1(Final, Tabuleiro,1)  .
+adjacente(Inicial,Final, Tabuleiro):- Final is Inicial+11, nth1(Final, Tabuleiro,1) .
+adjacente(Inicial,Final, Tabuleiro):- Final is Inicial-11,  nth1(Final, Tabuleiro,1).
+
+existeCaminho(Inicial,Final,T) :-
+	nth1(Final,T,0),!, fail.
+
+existeCaminho(Inicial,Final, T) :-
+	adjacente(Inicial,Final,T),
+	nl.
+	
+existeCaminho(Inicial,Final,T) :-
+	adjacente(Inicial,P,T),
+	Pos is Inicial,
+	write(Inicial-P),
+	remove_at(1,T,Pos,TNovo),
+	insert_at(0,TNovo,Pos, TNovo2),
+
+	existeCaminho(P,Final,TNovo2).
+	
+zeroBird(Caminho) :-
+	tabuleiro(T),
+	length(Caminho,17),
+	domain(Caminho,1,6),
+	cabecaCaminho(Caminho, T).
+	
+	
+cabecaCaminho([H|T], Tabuleiro) :-
+	write(H),
+	getPos(1,8,A),
+	write(H),
+	element(A,Tabuleiro,H).
+
+escolhePosicoes(Pecas,N,L,C):-
 	generatePuzzle(T, L, C),
 	length(Pecas,N),
 	findall(X-Y,verificaPeca(T, X,Y, 1),Sols),
-	escolhePecas(Pecas, Sols).
-	/*diferentes(Pecas).*/
-	
-/*caminho(Pecas, N,L,C):-caminho(Pecas,N,L,C).	*/
-
-diferentes([]).
-diferentes([H|T]):-
-	\+ member(H, T),
-	diferentes(T).
+	escolhePosicoesAux(Pecas, Sols).
 		
 choose([], []).
 choose(List, Elt) :-
@@ -22,12 +97,12 @@ choose(List, Elt) :-
 	random(0, Length, Index),
 	nth0(Index, List, Elt).
 
-escolhePecas([],_).
-escolhePecas([H|T], PecasLivres):-
+escolhePosicoesAux([],_).
+escolhePosicoesAux([H|T], PecasLivres):-
 	choose(PecasLivres, X),
 	member(X, [H]),
 	delete(PecasLivres, X, PecasLivresNovo),
-	escolhePecas(T, PecasLivresNovo).
+	escolhePosicoesAux(T, PecasLivresNovo).
 	
 verificaPeca(T,X,Y,Jogador) :- verificaPecaAux(T,X,Y,Jogador,1).
 verificaPecaAux([T|_],X,Y,Jogador,Y) :-
