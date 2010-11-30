@@ -6,14 +6,13 @@ caminho(Pecas,N,L,C):-
 	generatePuzzle(T, L, C),
 	length(Pecas,N),
 	findall(X-Y,verificaPeca(T, X,Y, 1),Sols),
-	escolhePecas(Pecas, Sols),
-	diferentes(Pecas), !.
+	escolhePecas(Pecas, Sols).
+	/*diferentes(Pecas).*/
 	
-caminho(Pecas, N,L,C):-caminho(Pecas,N,L,C).	
+/*caminho(Pecas, N,L,C):-caminho(Pecas,N,L,C).	*/
 
 diferentes([]).
 diferentes([H|T]):-
-	write(H-T),
 	\+ member(H, T),
 	diferentes(T).
 		
@@ -27,7 +26,8 @@ escolhePecas([],_).
 escolhePecas([H|T], PecasLivres):-
 	choose(PecasLivres, X),
 	member(X, [H]),
-	escolhePecas(T, PecasLivres).
+	delete(PecasLivres, X, PecasLivresNovo),
+	escolhePecas(T, PecasLivresNovo).
 	
 verificaPeca(T,X,Y,Jogador) :- verificaPecaAux(T,X,Y,Jogador,1).
 verificaPecaAux([T|_],X,Y,Jogador,Y) :-
