@@ -48,21 +48,21 @@ oneBird(PosicoesEscolhidas) :-
 	element(E,[73,105,108],P5),
 	
 	member(X1, Posicoes),
-	existeCaminho(89, X1, T, T1),
 	labeling([],[X1]),
+	existeCaminho(89, X1, T, T1),
 	member(X2, Posicoes),
-	existeCaminho(X1, X2, T1, T2),
 	labeling([],[X2]),
+	existeCaminho(X1, X2, T1, T2),
 	member(X3, Posicoes),
-	existeCaminho(X2, X3, T2, T3),
 	labeling([],[X3]),
+	existeCaminho(X2, X3, T2, T3),
 	member(X4, Posicoes),
-	existeCaminho(X3, X4, T3, T4),
 	labeling([],[X4]),
+	existeCaminho(X3, X4, T3, T4),
 	member(X5, Posicoes),
+	labeling([],[X5]),
 	existeCaminho(X4, X5, T4, T5),
-	existeCaminho(X5,33,T5,_),
-	labeling([],[X5]).
+	existeCaminho(X5,33,T5,_).
 	
 /*element(B,[18,96,82],P2),
 element(C,[40,41,86],P3),
