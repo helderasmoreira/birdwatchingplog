@@ -13,15 +13,15 @@ getPos(X,Y, Pos) :-
 
 tabuleiro(T) :-
 	T = [0,0,0,0,0,0,0,0,0,0,0,
-		 0,2,1,1,2,0,0,1,1,1,0,
+		 0,1,1,2,1,1,3,1,1,1,0,
 		 0,1,0,1,0,1,0,1,0,1,1,
-		 0,1,1,1,1,1,1,1,1,1,0,
-		 0,0,1,0,1,0,1,0,1,0,0,
-		 0,0,1,1,1,1,1,1,1,0,0,
-		 0,0,1,0,1,0,1,0,1,0,0,
-		 0,1,1,1,1,1,1,1,1,1,0,
-		 1,1,0,1,0,1,0,1,0,1,0,
-		 0,1,1,1,1,1,1,1,1,1,0,
+		 0,1,1,1,1,1,4,4,1,1,0,
+		 0,0,1,0,1,0,2,0,1,0,0,
+		 0,0,1,1,1,1,1,1,5,0,0,
+		 0,0,1,0,1,0,6,0,1,0,0,
+		 0,1,1,1,3,2,5,1,4,1,0,
+		 1,1,0,1,0,1,0,3,0,1,0,
+		 0,1,5,1,1,6,1,1,6,1,0,
 		 0,0,0,0,0,0,0,0,0,0,0].
 		 		 
 		
@@ -33,44 +33,73 @@ tabuleiro(T) :-
    Roxo = E
 */
 		
-oneBird([P1,P2,P3,P4,P5]) :-
+oneBird(PosicoesEscolhidas) :-
 	tabuleiro(T),
 	Caminho = [A,B,C,D,E],
-	domain(Caminho,1,5),
-
+	Posicoes = [P1,P2,P3,P4,P5],
+	PosicoesEscolhidas = [X1,X2,X3,X4,X5],
+	all_distinct(PosicoesEscolhidas),
 	
+	domain(Caminho,1,5),
 	element(A,[15,51,83],P1),
 	element(B,[18,96,82],P2),
 	element(C,[40,41,86],P3),
 	element(D,[64,84,102],P4),
 	element(E,[73,105,108],P5),
 	
-	existeCaminho(89,P1,T),
+	member(X1, Posicoes),
+	existeCaminho(89, X1, T, T1),
+	labeling([],[X1]),
+	member(X2, Posicoes),
+	existeCaminho(X1, X2, T1, T2),
+	labeling([],[X2]),
+	member(X3, Posicoes),
+	existeCaminho(X2, X3, T2, T3),
+	labeling([],[X3]),
+	member(X4, Posicoes),
+	existeCaminho(X3, X4, T3, T4),
+	labeling([],[X4]),
+	member(X5, Posicoes),
+	existeCaminho(X4, X5, T4, T5),
+	existeCaminho(X5,33,T5,_),
+	labeling([],[X5]).
 	
-	labeling([],Caminho),
-	write(Soma).
+/*element(B,[18,96,82],P2),
+element(C,[40,41,86],P3),
+element(D,[64,84,102],P4),
+element(E,[73,105,108],P5),
+existeCaminho(89,P5,T, T1),
+existeCaminho(P5, P1,T1, T2),
+existeCaminho(P1, P2,T2, T3),
+existeCaminho(P2, P4,T3, T4),
+existeCaminho(P4, P3,T4, T5),
+existeCaminho(P3, 33,T5, _),*/
 		 
 	
-adjacente(Inicial,Final, Tabuleiro):- Final is Inicial-1, nth1(Final, Tabuleiro,1)  .
-adjacente(Inicial,Final, Tabuleiro):- Final is Inicial+1, nth1(Final, Tabuleiro,1)  .
-adjacente(Inicial,Final, Tabuleiro):- Final is Inicial+11, nth1(Final, Tabuleiro,1) .
-adjacente(Inicial,Final, Tabuleiro):- Final is Inicial-11,  nth1(Final, Tabuleiro,1).
+adjacente(Inicial,Final, Tabuleiro):- Inicial >= 0, Inicial < 121, Final is Inicial-1, nth1(Final, Tabuleiro,1).
+adjacente(Inicial,Final, Tabuleiro):- Inicial >= 0, Inicial < 121, Final is Inicial+1, nth1(Final, Tabuleiro,1).
+adjacente(Inicial,Final, Tabuleiro):- Inicial =< 110, Final is Inicial+11, nth1(Final, Tabuleiro,1) .
+adjacente(Inicial,Final, Tabuleiro):- Inicial >= 11, Final is Inicial-11,  nth1(Final, Tabuleiro,1).
 
-existeCaminho(Inicial,Final,T) :-
+adjacente2(Inicial,Final, Tabuleiro):- Inicial >= 0, Inicial < 121, Final is Inicial-1, \+ nth1(Final, Tabuleiro,0).
+adjacente2(Inicial,Final, Tabuleiro):- Inicial >= 0, Inicial < 121, Final is Inicial+1, \+ nth1(Final, Tabuleiro,0).
+adjacente2(Inicial,Final, Tabuleiro):- Inicial =< 110, Final is Inicial+11, \+ nth1(Final, Tabuleiro,0) .
+adjacente2(Inicial,Final, Tabuleiro):- Inicial >= 11, Final is Inicial-11,  \+ nth1(Final, Tabuleiro,0).
+
+existeCaminho(_,Final,T, _) :-
 	nth1(Final,T,0),!, fail.
 
-existeCaminho(Inicial,Final, T) :-
-	adjacente(Inicial,Final,T),
-	nl.
+existeCaminho(Inicial,Final, T, TNovo2) :-
+	adjacente2(Inicial,Final,T),
+	remove_at(_,T,Inicial,TNovo),
+	insert_at(0,TNovo,Inicial, TNovo2).
 	
-existeCaminho(Inicial,Final,T) :-
+existeCaminho(Inicial,Final,T, TRet) :-
 	adjacente(Inicial,P,T),
 	Pos is Inicial,
-	write(Inicial-P),
-	remove_at(1,T,Pos,TNovo),
+	remove_at(_,T,Pos,TNovo),
 	insert_at(0,TNovo,Pos, TNovo2),
-
-	existeCaminho(P,Final,TNovo2).
+	existeCaminho(P,Final,TNovo2, TRet).
 	
 zeroBird(Caminho) :-
 	tabuleiro(T),
@@ -79,7 +108,7 @@ zeroBird(Caminho) :-
 	cabecaCaminho(Caminho, T).
 	
 	
-cabecaCaminho([H|T], Tabuleiro) :-
+cabecaCaminho([H|_], Tabuleiro) :-
 	write(H),
 	getPos(1,8,A),
 	write(H),
