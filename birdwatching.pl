@@ -10,6 +10,28 @@ insert_at(X,L,K,R) :- remove_at(X,R,K,L).
 
 getPos(X,Y, Pos) :-
 	Pos is Y*11+X.
+	
+parser([],[],[],[],[],[],_).
+parser([2|R],[Indice|RA],BOut,COut,DOut,EOut, Indice) :-
+	Indice1 is Indice +1,
+	parser(R,RA,BOut,COut,DOut,EOut, Indice1) ,!.	
+parser([3|R],AOut,[Indice|RB],COut,DOut,EOut, Indice) :-
+	Indice1 is Indice +1,
+	parser(R,AOut,RB,COut,DOut,EOut, Indice1) ,!.	
+parser([4|R],AOut,BOut,[Indice|RC],DOut,EOut, Indice) :-
+	Indice1 is Indice +1,
+	parser(R,AOut,BOut,RC,DOut,EOut, Indice1) ,!.	
+parser([5|R],AOut,BOut,COut,[Indice|RD],EOut, Indice) :-
+	Indice1 is Indice +1,
+	parser(R,AOut,BOut,COut,RD,EOut, Indice1) ,!.	
+parser([6|R],AOut,BOut,COut,DOut,[Indice|RE], Indice) :-
+	Indice1 is Indice +1,
+	parser(R,AOut,BOut,COut,DOut,RE, Indice1) ,!.
+parser([_|R],AOut,BOut,COut,DOut,EOut, Indice) :-
+	Indice1 is Indice +1,
+	parser(R,AOut,BOut,COut,DOut,EOut, Indice1) ,!.
+		
+	
 
 tabuleiro(T) :-
 	T = [0,0,0,0,0,0,0,0,0,0,0,
@@ -23,8 +45,33 @@ tabuleiro(T) :-
 		 1,1,0,1,0,1,0,3,0,1,0,
 		 0,1,5,1,1,6,1,1,6,1,0,
 		 0,0,0,0,0,0,0,0,0,0,0].
-		 		 
-		
+		 		
+
+	 
+/* 
+   Verde = 2
+   Vermelho = 3
+   Azul = 4
+   Amarelo = 5
+   Roxo = 6
+*/
+	/*
+tabuleiro(T) :-
+	T = [0,0,0,0,0,0,0,0,0,0,0,
+		 0,1,1,5,1,1,3,4,1,1,0,
+		 0,1,0,1,0,1,0,1,0,1,1,
+		 0,1,1,3,1,1,2,2,1,1,0,
+		 0,0,1,0,5,0,1,0,1,0,0,
+		 0,0,1,1,4,1,2,6,1,0,0,
+		 0,0,6,0,1,0,1,0,1,0,0,
+		 0,4,1,1,1,1,6,1,1,1,0,
+		 1,1,0,1,0,1,0,1,0,1,0,
+		 0,1,1,1,5,1,3,1,1,1,0,
+		 0,0,0,0,0,0,0,0,0,0,0].
+
+*/
+
+				 
 /* 
    Verde = A
    Vermelho = B
@@ -41,11 +88,11 @@ oneBird(PosicoesEscolhidas) :-
 	all_distinct(PosicoesEscolhidas),
 	
 	domain(Caminho,1,5),
-	element(A,[15,51,83],P1),
-	element(B,[18,96,82],P2),
-	element(C,[40,41,86],P3),
-	element(D,[64,84,102],P4),
-	element(E,[73,105,108],P5),
+	element(A,[40,41,62],P1),
+	element(B,[18,37,106],P2),
+	element(C,[19,60,79],P3),
+	element(D,[15,49,104],P4),
+	element(E,[63,69,84],P5),
 	
 	member(X1, Posicoes),
 	labeling([],[X1]),
@@ -62,9 +109,13 @@ oneBird(PosicoesEscolhidas) :-
 	member(X5, Posicoes),
 	labeling([],[X5]),
 	existeCaminho(X4, X5, T4, T5),
-	existeCaminho(X5,33,T5,_).
+	existeCaminho(X5,33,T5,_),
 	
-/*element(B,[18,96,82],P2),
+	write(T).
+	
+/*
+element(A,[15,51,83],P1),
+element(B,[18,96,82],P2),
 element(C,[40,41,86],P3),
 element(D,[64,84,102],P4),
 element(E,[73,105,108],P5),
