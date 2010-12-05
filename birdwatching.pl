@@ -30,9 +30,15 @@ parser([6|R],AOut,BOut,COut,DOut,[Indice|RE], Indice) :-
 parser([_|R],AOut,BOut,COut,DOut,EOut, Indice) :-
 	Indice1 is Indice +1,
 	parser(R,AOut,BOut,COut,DOut,EOut, Indice1) ,!.
-		
-	
 
+/* 
+   Verde = 2 = A
+   Vermelho = 3 = B
+   Azul = 4 = C
+   Amarelo = 5 = D
+   Roxo = 6 = E
+*/
+/*
 tabuleiro(T) :-
 	T = [0,0,0,0,0,0,0,0,0,0,0,
 		 0,1,1,2,1,1,3,1,1,1,0,
@@ -45,17 +51,8 @@ tabuleiro(T) :-
 		 1,1,0,1,0,1,0,3,0,1,0,
 		 0,1,5,1,1,6,1,1,6,1,0,
 		 0,0,0,0,0,0,0,0,0,0,0].
-		 		
 
-	 
-/* 
-   Verde = 2
-   Vermelho = 3
-   Azul = 4
-   Amarelo = 5
-   Roxo = 6
-*/
-	/*
+ */
 tabuleiro(T) :-
 	T = [0,0,0,0,0,0,0,0,0,0,0,
 		 0,1,1,5,1,1,3,4,1,1,0,
@@ -69,16 +66,19 @@ tabuleiro(T) :-
 		 0,1,1,1,5,1,3,1,1,1,0,
 		 0,0,0,0,0,0,0,0,0,0,0].
 
-*/
+tabuleiroTwoBirds(T) :-
+	T = [0,0,0,0,0,0,0,0,0,0,0,
+		 0,6,6,1,4,3,1,2,1,1,0,
+		 0,1,0,4,0,4,0,1,0,1,1,
+		 0,1,1,1,2,1,2,5,5,5,0,
+		 0,0,1,0,1,0,1,0,1,0,0,
+		 0,0,1,1,1,3,4,1,1,0,0,
+		 0,0,1,0,6,0,1,0,1,0,0,
+		 0,1,1,1,1,6,1,1,1,1,0,
+		 1,1,0,1,0,3,0,1,0,1,0,
+		 0,1,1,1,1,1,3,5,1,2,0,
+		 0,0,0,0,0,0,0,0,0,0,0].
 
-				 
-/* 
-   Verde = A
-   Vermelho = B
-   Azul = C
-   Amarelo = D
-   Roxo = E
-*/
 		
 oneBird(PosicoesEscolhidas) :-
 	tabuleiro(T),
@@ -87,12 +87,14 @@ oneBird(PosicoesEscolhidas) :-
 	PosicoesEscolhidas = [X1,X2,X3,X4,X5],
 	all_distinct(PosicoesEscolhidas),
 	
+	parser(T,AOut,BOut,COut,DOut,EOut,1),
+	
 	domain(Caminho,1,5),
-	element(A,[40,41,62],P1),
-	element(B,[18,37,106],P2),
-	element(C,[19,60,79],P3),
-	element(D,[15,49,104],P4),
-	element(E,[63,69,84],P5),
+	element(A,AOut,P1),
+	element(B,BOut,P2),
+	element(C,COut,P3),
+	element(D,DOut,P4),
+	element(E,EOut,P5),
 	
 	member(X1, Posicoes),
 	labeling([],[X1]),
@@ -124,7 +126,67 @@ existeCaminho(P5, P1,T1, T2),
 existeCaminho(P1, P2,T2, T3),
 existeCaminho(P2, P4,T3, T4),
 existeCaminho(P4, P3,T4, T5),
-existeCaminho(P3, 33,T5, _),*/
+existeCaminho(P3, 33,T5, _),
+*/
+
+
+twoBirds(PosicoesEscolhidas) :-
+	tabuleiroTwoBirds(T),
+	Caminho = [A1,B1,C1,D1,E1,A2,B2,C2,D2,E2],
+	Posicoes = [P1,P2,P3,P4,P5,P6,P7,P8,P9,P10],
+	PosicoesEscolhidas = [X1,X2,X3,X4,X5,X6,X7,X8,X9,X10],
+	
+	all_distinct(PosicoesEscolhidas),
+
+	
+	parser(T,A,B,C,D,E,1),
+	
+	domain(Caminho,1,10),
+	element(A1,A,P1),
+	element(A2,A,P2),
+	element(B1,B,P3),
+	element(B2,B,P4),
+	element(C1,C,P5),
+	element(C2,C,P6),
+	element(D1,D,P7),
+	element(D2,D,P8),
+	element(E1,E,P9),
+	element(E2,E,P10),
+	write('a'),
+	member(X1, Posicoes),
+	labeling([],[X1]),
+	existeCaminho(89, X1, T, T1),
+	member(X2, Posicoes),
+	labeling([],[X2]),
+	existeCaminho(X1, X2, T1, T2),
+	member(X3, Posicoes),
+	labeling([],[X3]),
+	existeCaminho(X2, X3, T2, T3),
+	member(X4, Posicoes),
+	labeling([],[X4]),
+	existeCaminho(X3, X4, T3, T4),
+	member(X5, Posicoes),
+	labeling([],[X5]),
+	existeCaminho(X4, X5, T4, T5),
+	member(X6, Posicoes),
+	labeling([],[X6]),
+	existeCaminho(X5, X6, T5, T6),
+	member(X7, Posicoes),
+	labeling([],[X7]),
+	existeCaminho(X6, X7, T6, T7),
+	member(X8, Posicoes),
+	labeling([],[X8]),
+	existeCaminho(X7, X8, T7, T8),
+	member(X9, Posicoes),
+	labeling([],[X9]),
+	existeCaminho(X8, X9, T8, T9),
+	member(X10, Posicoes),
+	labeling([],[X10]),
+	existeCaminho(X9, X10, T9, T10),	
+	existeCaminho(X10,33,T10,_),
+	write(X1),
+	write(T).
+
 		 
 	
 adjacente(Inicial,Final, Tabuleiro):- Inicial >= 0, Inicial < 121, Final is Inicial-1, nth1(Final, Tabuleiro,1).
