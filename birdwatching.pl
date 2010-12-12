@@ -161,7 +161,7 @@ garanteUm([A,B,C|P]):-
 garanteDois([]).	
 garanteDois([A,B,C,D|P]):-
 	Ordens = [A,B,C,D],
-	count(0, Ordens, #=, X),
+	count(61, Ordens, #=, X),
 	X #= 2,
 	garanteDois(P).	
 	
@@ -188,8 +188,6 @@ oneBirdComRestricoes(Caminho, Birds):-
 	Sz2 #= 121-Sz #/\ Sz3 #= Sz2-1 #/\ Difs #= Sz2+1,
 	element(32, Caminho, Sz3),
 	element(33, Caminho, Sz2),
-	%nvalue(Difs, Caminho),
-	%maximum(Sz2, Caminho),
 	casasZero(Caminho, T),
 	length(Birds, 15),
 	domain(Birds, 1, 61),
@@ -210,23 +208,21 @@ twoBirdsComRestricoes(Caminho, Birds):-
 	append(P3, EOut, P4),
 	length(Caminho, 121),
 	length(Birds, 20),
-	domain(Caminho, 0, 60),
-	domain(Birds, 0, 60),
+	domain(Caminho, 1, 61),
+	domain(Birds, 1, 61),
 	element(89, Caminho, 1),
 	element(90, Caminho, 2),
-	count(0, Caminho, #=, Sz),
+	count(61, Caminho, #=, Sz),
 	Sz2 #= 121-Sz #/\ Sz3 #= Sz2-1 #/\ Difs #= Sz2+1,
 	element(32, Caminho, Sz3),
 	element(33, Caminho, Sz2),
-	nvalue(Difs, Caminho),
-	maximum(Sz2, Caminho),
 	casasZero(Caminho, T),
 	garanteDois(Birds),
 	processaCaminho2(Caminho, 13, P4, Birds, T, 33, 89),
 	append(Birds, Caminho, List),
 	write('Labeling...'),nl,
 	!,
-	labeling([ff,up], List).
+	labeling([min,up], List).
 
 % SOLUCAO HIBRIDA
 	
