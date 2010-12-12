@@ -181,7 +181,6 @@ garanteDois([A,B,C,D|P], SizeCaminho):-
 	
 
 garanteXBirds(Birds,_,_,_,Pos):-length(Birds, Pos), !.
-	
 garanteXBirds(Birds, SizeCaminho, XBirds, NBirds, Pos):-
 	sublist(Birds, Part, Pos, NBirds, Next),
 	W is NBirds-XBirds,
@@ -199,11 +198,10 @@ casasZero([H2|T2], [H|T], SizeCaminho):-
 	
 % ROTINA RESPONSAVEL POR ENCONTRAR O CAMINHO E FAZER LABELING	
 	
-xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds):-
+xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds, NBirds):-
 	write('Tabuleiro a processar: '),
 	nl,
-	printTabuleiro(Tabuleiro, 1, SizeC),
-	NBirds is XBirds+2,
+	printTabuleiro(Tabuleiro, 1, 11),
 	tabuleiroMask(T),
 	parser(Tabuleiro,AOut,BOut,COut,DOut,EOut,1),
 	append(AOut, BOut, P),
@@ -229,15 +227,19 @@ xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds):-
 	element(Saida, Caminho, Sz2),
 	casasZero(Caminho, T, SizeCaminho),
 	garanteXBirds(Birds, SizeCaminho, XBirds, NBirds, 0),
-	processaCaminho2(Caminho, 13, P4, Birds, T, 33, 89, SizeCaminho),
+	processaCaminho2(Caminho, 13, P4, Birds, T, Entrada, Saida, SizeCaminho),
 	append(Birds, Caminho, List),
 	write('Labeling...'),nl,
 	!,
-	labeling([min,up], List),
+	labeling([min,up, maximize(Sz)], List),
 	write('Solucao do problema:'),nl,
 	printSol(Caminho, SizeC, 0, SizeCaminho, Birds, T),
 	write('Passaro - Ordem do caminho: '),nl,
-	printBirdsPos(Birds, P4, SizeCaminho).
+	printBirdsPos(Birds, P4, SizeCaminho),nl,
+	fd_statistics,
+	statistics(runtime, [_,Time]),
+	write('Tempo de execucao: '),
+	write(Time),nl.
 	
 
 printBirdsPos([],_,_).
@@ -275,7 +277,7 @@ printTabuleiro([H|T], Num, Size):-
 	Size2 is Size+1,
 	Num == Size2,
 	nl,
-	printTabuleiro([H|T], 1, Size).
+	printTabuleiro([H|T], 1, Size), !.
 	
 printTabuleiro([H|T], Num, Size):-
 	Num2 is Num+1,
@@ -284,12 +286,41 @@ printTabuleiro([H|T], Num, Size):-
 	printTabuleiro(T,Num2, Size).
 	
 testeXBirds:-
-	%tabuleiro(Tabuleiro),
-	%tabuleiroTwoBirds(Tabuleiro),
-	tabuleiroThreeBirds(Tabuleiro),
 	write('Resolucao de puzzles de Birdwatching'),nl,
-	xBirdsComRestricoes(_, _, Tabuleiro, 11, 3).
+	tabuleiro(T1),
+	xBirdsComRestricoes(_, _, T1, 11, 1, 3),
+	tabuleiroTwoBirds(T2),
+	xBirdsComRestricoes(_, _, T2, 11, 2, 4),
+	tabuleiroThreeBirds(T3),
+	xBirdsComRestricoes(_, _, T3, 11, 3, 5).
 
+randomBirdsWay(T, 1, T, _):-!.
+randomBirdsWay(T, B1, TFim, N):-
+	random(12, 110, X),
+	X \= 89, X \= 33,
+	X \= 90, X \= 32,
+	element(X, T, Y),
+	Y = 1, 
+	remove_at(_,T,X,TNovo),
+	insert_at(N,TNovo,X, TNovo2),
+	B2 is B1-1,
+	randomBirdsWay(TNovo2, B2, TFim, N), !.
+
+randomBirdsWay(T, B1, TFim, N):-
+	randomBirdsWay(T, B1, TFim, N).	
+	
+randomPuzzle(NBirds):-
+	tabuleiroMask(T),
+	Birds is NBirds+3,
+	randomBirdsWay(T, Birds, T2, 2),
+	randomBirdsWay(T2, Birds, T3, 3),
+	randomBirdsWay(T3, Birds, T4, 4),
+	randomBirdsWay(T4, Birds, T5, 5),
+	randomBirdsWay(T5, Birds, T6, 6),
+	Y is NBirds+2,
+	xBirdsComRestricoes(_, _, T6, 11, NBirds, Y).
+	
+	
 % SOLUCAO HIBRIDA
 	
 oneBird(PosicoesEscolhidas) :-
@@ -411,110 +442,4 @@ verificaPecaLinha([Jogador|_], X, Jogador, X).
 verificaPecaLinha([_|R], X, Jogador, Coluna) :-
 	N1 is Coluna+1,
 	verificaPecaLinha(R, X, Jogador, N1).
-	
-limite([], 0).
-limite([0|T], M):-
-	M > 0,
-	M1 is M-1,
-	limite(T, M1).
-
-generatePuzzle([H|T], _, M):-
-	limite(H, M),
-	generatePuzzle2(T, M, M, M).
-
-linhaBranca([0|T], M):-
-	M1 is M-1,
-	linhaBranca2(T, M1).
-
-linhaBranca2([0], 1).
-linhaBranca2([1|T], M):-
-	M > 1,
-	M1 is M-1,
-	linhaBranca2(T, M1).
-	
-generateExit([1], 1).
-generateExit([1|T], M):-
-	M > 1,
-	Div is M mod 2,
-	Div = 0,
-	M1 is M-1,
-	generateExit(T, M1).
-	
-generateExit([0|T], M):-
-	M > 1,
-	Div is M mod 2,
-	Div = 1,
-	M1 is M-1,
-	generateExit(T, M1).
-
-generateEntrance([], 0).
-generateEntrance([1|T], M):-
-	M > 0,
-	Div is M mod 2,
-	Div = 0,
-	M1 is M-1,
-	generateEntrance(T, M1).
-	
-generateEntrance([0|T], M):-
-	M > 0,
-	Div is M mod 2,
-	Div = 1,
-	M1 is M-1,
-generateEntrance(T, M1).	
-	
-generatePuzzle2([T], 1, M, _):-limite(T, M).
-generatePuzzle2([[1,1|H]|T], N, M, Norig):-
-	N =3,
-	M2 is M-2,
-	generateEntrance(H, M2),
-	N1 is N-1,
-	generatePuzzle2(T, N1, M, Norig).
-	
-generatePuzzle2([H|T], N, M, Norig):-
-	N =:= Norig-1,
-	generateExit(H, M),
-	N1 is N-1,
-	generatePuzzle2(T, N1, M, Norig).	
-	
-generatePuzzle2([H|T], N, M, Norig):-	
-	N > 1, N \== 3,N =\= Norig-1,
-	Div is N mod 2,
-	Div = 0,
-	linhaBranca(H, M),
-	N1 is N-1,
-	generatePuzzle2(T, N1, M, Norig).
-
-generatePuzzle2([H|T], N, M, Norig):-	
-	N > 1, N \== 3,N =\= Norig-1,
-	Div is N mod 2,
-	Div = 1,
-	generateLine(H, M),
-	N1 is N-1,
-	generatePuzzle2(T, N1, M, Norig).	
-
-generateLine([], 0).
-generateLine([1|T], M):-
-	M > 0,
-	Div is M mod 2,
-	Div = 0,
-	M1 is M-1,
-	generateLine(T, M1).
-	
-generateLine([0|T], M):-
-	M > 0,
-	Div is M mod 2,
-	Div = 1,
-	M1 is M-1,
-	generateLine(T, M1).	
-
-concatenate([], L, L).
-concatenate([X|L1], L2, [X|L3]) :-
-	concatenate(L1, L2, L3).	
-
-tabToList(T,Lista):-
-	tabToList2(T, Lista, _).
-tabToList2([], F, [F|_]).
-tabToList2([H|T], Lista, [H3|T3]):-
-	concatenate(H3, H, H4),
-	tabToList2(T, Lista, [H4|T3]).
 	
