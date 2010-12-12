@@ -137,7 +137,7 @@ processaCaminho2(Caminho, PosAct, Posicoes, PecasP, Tab, Fim, Inicio):-
 	element(PosAct, Caminho, X),
 	element(_, Redondeza, ValEntrada),
 	element(_, Redondeza, ValSaida),
-	(X #> 2 #=> ValEntrada #= X-1 #/\ ValSaida #= X+1) #\/ X #= 0,
+	(X #> 0 #=> ValEntrada #= X-1 #/\ ValSaida #= X+1) #\/ X #= 61,
 	isBird(PosAct, Caminho, Posicoes, PecasP),
 	PosAct2 is PosAct+1,
 	processaCaminho2(Caminho, PosAct2, Posicoes, PecasP, Tab, Fim, Inicio).
@@ -153,7 +153,7 @@ isBird(_,_,_,_).
 garanteUm([]).	
 garanteUm([A,B,C|P]):-
 	Ordens = [A,B,C],
-	count(0, Ordens, #=, X),
+	count(61, Ordens, #=, X),
 	X #= 2,
 	garanteUm(P).	
 
@@ -168,7 +168,7 @@ garanteDois([A,B,C,D|P]):-
 % RESTRINGE AS CASAS PAREDE AO VALOR ZERO	
 casasZero([],[]).
 casasZero([H2|T2], [H|T]):-
-	H #=0 #=> H2 #=0,
+	H #=0 #=> H2 #=61,
 	casasZero(T2, T).
 	
 % ROTINA RESPONSAVEL POR ENCONTRAR O CAMINHO E FAZER LABELING	
@@ -181,24 +181,24 @@ oneBirdComRestricoes(Caminho, Birds):-
 	append(P2, DOut, P3),
 	append(P3, EOut, P4),
 	length(Caminho, 121),
-	domain(Caminho, 0, 60),
+	domain(Caminho, 1, 61),
 	element(89, Caminho, 1),
 	element(90, Caminho, 2),
-	count(0, Caminho, #=, Sz),
+	count(61, Caminho, #=, Sz),
 	Sz2 #= 121-Sz #/\ Sz3 #= Sz2-1 #/\ Difs #= Sz2+1,
 	element(32, Caminho, Sz3),
 	element(33, Caminho, Sz2),
-	nvalue(Difs, Caminho),
-	maximum(Sz2, Caminho),
+	%nvalue(Difs, Caminho),
+	%maximum(Sz2, Caminho),
 	casasZero(Caminho, T),
 	length(Birds, 15),
-	domain(Birds, 0, 60),
+	domain(Birds, 1, 61),
 	processaCaminho2(Caminho, 13, P4, Birds, T, 33, 89),
 	garanteUm(Birds),
 	!,
 	append(Birds, Caminho, Lista),
 	write('Labeling...'),nl,
-	labeling([ff,up], Lista).
+	labeling([min,up], Lista).
 	
 twoBirdsComRestricoes(Caminho, Birds):-
 	tabuleiroMask(T),
