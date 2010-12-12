@@ -231,7 +231,7 @@ xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds, NBirds):-
 	!,
 	labeling([min,up], List),
 	write('Solucao do problema:'),nl,
-	printSol(Caminho, SizeC, 0, SizeCaminho, Birds),
+	printSol(Caminho, SizeC, 0, SizeCaminho, Birds, T),
 	write('Passaro - Ordem do caminho: '),nl,
 	printBirdsPos(Birds, P4, SizeCaminho).
 	
@@ -244,28 +244,30 @@ printBirdsPos([H|T], [H2|T2], Max):-
 printBirdsPos([_|T], [_|T2], Max):-
 	printBirdsPos(T, T2, Max).	
 	
-printSol(Caminho, _, Pos, _, _):-length(Caminho, Pos).
-printSol(Caminho, SizeC, Pos, MaxSizeCaminho, Birds):-
+printSol(Caminho, _, Pos, _, _,_):-length(Caminho, Pos).
+printSol(Caminho, SizeC, Pos, MaxSizeCaminho, Birds, Tab):-
 	sublist(Caminho, Part, Pos, SizeC, Next),
-	printLinhaSol(Part, MaxSizeCaminho, Birds),nl,
+	sublist(Tab, Part2, Pos, SizeC, Next),
+	printLinhaSol(Part, MaxSizeCaminho, Birds, Part2),nl,
 	length(Caminho, S),
 	Next2 is S-Next,
-	printSol(Caminho, SizeC, Next2, MaxSizeCaminho, Birds).
+	printSol(Caminho, SizeC, Next2, MaxSizeCaminho, Birds, Tab).
 	
-printLinhaSol([], _, _).
-printLinhaSol([H|T], H, Birds):-
-	write('0 '),
-	printLinhaSol(T, H, Birds), !.
-printLinhaSol([H|T], S, Birds):-
+printLinhaSol([], _, _, _).
+printLinhaSol([H|T], H, Birds, [H2|T2]):-
+	write(H2),write(' '),
+	printLinhaSol(T, H, Birds, T2), !.
+printLinhaSol([H|T], S, Birds, [_|T2]):-
 	member(H, Birds),
 	write('B '),
-	printLinhaSol(T, S, Birds), !.
-printLinhaSol([_|T], S, Birds):-
+	printLinhaSol(T, S, Birds, T2), !.
+printLinhaSol([_|T], S, Birds,[_|T2]):-
 	write('* '),
-	printLinhaSol(T, S, Birds), !.	
+	printLinhaSol(T, S, Birds, T2), !.	
 	
 testeXBirds:-
 	tabuleiro(Tabuleiro),
+	%tabuleiroTwoBirds(Tabuleiro),
 	write('Resolucao de puzzles de Birdwatching'),nl,
 	xBirdsComRestricoes(_, _, Tabuleiro, 11, 1, 3).
 
