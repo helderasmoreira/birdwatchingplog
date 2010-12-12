@@ -105,26 +105,26 @@ tabuleiroMask(T) :-
 % SOLUCAO COM TOTALMENTE COM RESTRICOES		 
 
 % COLOCA AS RESTRICOES NAS VARIAS PECAS DO TABULEIRO	
-processaCaminho2(_,112,_,_,_,_,_):- !.
+processaCaminho2(_,112,_,_,_,_,_,_):- !.
 
 % SE A POSICAO CORRESPONDE A UMA PAREDE NO TABULEIRO, LOGO A ORDEM E' ZERO, E NAO E' NECESSARIO RESTRINGIR (FEITO ANTERIORMENTE)
-processaCaminho2(Caminho, PosAct, Posicoes, PecasP, Tab, Fim, Inicio):-
+processaCaminho2(Caminho, PosAct, Posicoes, PecasP, Tab, Fim, Inicio, SizeCaminho):-
 	element(PosAct, Tab, X),
 	X = 0,
 	PosAct2 is PosAct+1,
-	processaCaminho2(Caminho, PosAct2, Posicoes, PecasP, Tab, Fim, Inicio), !.
+	processaCaminho2(Caminho, PosAct2, Posicoes, PecasP, Tab, Fim, Inicio,SizeCaminho), !.
 
 % PARA A POSICAO DE ENTRADA E SAIDA NAO E' NECESSARIO COLOCAR RESTRICOES
-processaCaminho2(Caminho, PosAct, Posicoes, PecasP, Tab, Fim, Inicio):-
+processaCaminho2(Caminho, PosAct, Posicoes, PecasP, Tab, Fim, Inicio, SizeCaminho):-
 	Inicio2 is Inicio+1,
 	Fim2 is Fim+1,
 	Restricoes = [Inicio,Fim, Inicio2, Fim2],
 	member(PosAct, Restricoes),
 	PosAct2 is PosAct+1,
-	processaCaminho2(Caminho, PosAct2, Posicoes, PecasP, Tab, Fim, Inicio), !.
+	processaCaminho2(Caminho, PosAct2, Posicoes, PecasP, Tab, Fim, Inicio, SizeCaminho), !.
 
 % PARA PECAS QUE NAO SAO PAREDE, ENTRADA OU SAIDA	
-processaCaminho2(Caminho, PosAct, Posicoes, PecasP, Tab, Fim, Inicio):-
+processaCaminho2(Caminho, PosAct, Posicoes, PecasP, Tab, Fim, Inicio, SizeCaminho):-
 	Redondeza = [A1,B1,C1,D1],
 	A is PosAct-1,
 	B is PosAct+1, 
@@ -137,10 +137,10 @@ processaCaminho2(Caminho, PosAct, Posicoes, PecasP, Tab, Fim, Inicio):-
 	element(PosAct, Caminho, X),
 	element(_, Redondeza, ValEntrada),
 	element(_, Redondeza, ValSaida),
-	(X #> 0 #=> ValEntrada #= X-1 #/\ ValSaida #= X+1) #\/ X #= 61,
+	(X #> 0 #=> ValEntrada #= X-1 #/\ ValSaida #= X+1) #\/ X #= SizeCaminho,
 	isBird(PosAct, Caminho, Posicoes, PecasP),
 	PosAct2 is PosAct+1,
-	processaCaminho2(Caminho, PosAct2, Posicoes, PecasP, Tab, Fim, Inicio).
+	processaCaminho2(Caminho, PosAct2, Posicoes, PecasP, Tab, Fim, Inicio, SizeCaminho).
 
 isBird(PosAct, Caminho, Posicoes, PecasP):-
 	element(PosBird, Posicoes, PosAct),
@@ -158,71 +158,68 @@ garanteUm([A,B,C|P]):-
 	garanteUm(P).	
 
 % GARANTE QUE O CAMINHO PASSA POR DOIS PASSAROS DE CADA	
-garanteDois([]).	
-garanteDois([A,B,C,D|P]):-
+garanteDois([], _).	
+garanteDois([A,B,C,D|P], SizeCaminho):-
 	Ordens = [A,B,C,D],
-	count(61, Ordens, #=, X),
+	count(SizeCaminho, Ordens, #=, X),
 	X #= 2,
-	garanteDois(P).	
+	garanteDois(P, SizeCaminho).	
+	
+
+garanteXBirds(Birds,_,_,_,Pos):-length(Birds, Pos), !.
+	
+garanteXBirds(Birds, SizeCaminho, XBirds, NBirds, Pos):-
+	sublist(Birds, Part, Pos, NBirds, Next),
+	W is NBirds-XBirds,
+	count(SizeCaminho, Part, #=, X),
+	X #= W,
+	length(Birds, S),
+	Next2 is S-Next,
+	garanteXBirds(Birds, SizeCaminho, XBirds, NBirds, Next2).
 	
 % RESTRINGE AS CASAS PAREDE AO VALOR ZERO	
-casasZero([],[]).
-casasZero([H2|T2], [H|T]):-
-	H #=0 #=> H2 #=61,
-	casasZero(T2, T).
+casasZero([],[], _).
+casasZero([H2|T2], [H|T], SizeCaminho):-
+	H #=0 #=> H2 #=SizeCaminho,
+	casasZero(T2, T, SizeCaminho).
 	
 % ROTINA RESPONSAVEL POR ENCONTRAR O CAMINHO E FAZER LABELING	
-oneBirdComRestricoes(Caminho, Birds):-
-	tabuleiroMask(T),
-	tabuleiro(Tabuleiro),
-	parser(Tabuleiro,AOut,BOut,COut,DOut,EOut,1),
-	append(AOut, BOut, P),
-	append(P, COut, P2),
-	append(P2, DOut, P3),
-	append(P3, EOut, P4),
-	length(Caminho, 121),
-	domain(Caminho, 1, 61),
-	element(89, Caminho, 1),
-	element(90, Caminho, 2),
-	count(61, Caminho, #=, Sz),
-	Sz2 #= 121-Sz #/\ Sz3 #= Sz2-1 #/\ Difs #= Sz2+1,
-	element(32, Caminho, Sz3),
-	element(33, Caminho, Sz2),
-	casasZero(Caminho, T),
-	length(Birds, 15),
-	domain(Birds, 1, 61),
-	processaCaminho2(Caminho, 13, P4, Birds, T, 33, 89),
-	garanteUm(Birds),
-	!,
-	append(Birds, Caminho, Lista),
-	write('Labeling...'),nl,
-	labeling([min,up], Lista).
 	
-twoBirdsComRestricoes(Caminho, Birds):-
+xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds, NBirds):-
 	tabuleiroMask(T),
-	tabuleiroTwoBirds(Tabuleiro),
 	parser(Tabuleiro,AOut,BOut,COut,DOut,EOut,1),
 	append(AOut, BOut, P),
 	append(P, COut, P2),
 	append(P2, DOut, P3),
 	append(P3, EOut, P4),
-	length(Caminho, 121),
-	length(Birds, 20),
-	domain(Caminho, 1, 61),
-	domain(Birds, 1, 61),
-	element(89, Caminho, 1),
-	element(90, Caminho, 2),
-	count(61, Caminho, #=, Sz),
-	Sz2 #= 121-Sz #/\ Sz3 #= Sz2-1 #/\ Difs #= Sz2+1,
-	element(32, Caminho, Sz3),
-	element(33, Caminho, Sz2),
-	casasZero(Caminho, T),
-	garanteDois(Birds),
-	processaCaminho2(Caminho, 13, P4, Birds, T, 33, 89),
+	length(Tabuleiro, SizeTab),
+	length(Caminho, SizeTab),
+	length(P4, SizeBirds),
+	length(Birds, SizeBirds),
+	SizeCaminho is (SizeC)*6,
+	domain(Caminho, 1, SizeCaminho),
+	domain(Birds, 1, SizeCaminho),
+	Entrada is SizeC*SizeC-3*SizeC+1,
+	Entrada2 is Entrada+1,
+	element(Entrada, Caminho, 1),
+	element(Entrada2, Caminho, 2),
+	count(SizeCaminho, Caminho, #=, Sz),
+	Sz2 #= SizeTab-Sz #/\ Sz3 #= Sz2-1 #/\ Difs #= Sz2+1,
+	Saida is SizeC*3,
+	Saida2 is Saida-1,
+	element(Saida2, Caminho, Sz3),
+	element(Saida, Caminho, Sz2),
+	casasZero(Caminho, T, SizeCaminho),
+	garanteXBirds(Birds, SizeCaminho, XBirds, NBirds, 0),
+	processaCaminho2(Caminho, 13, P4, Birds, T, 33, 89, SizeCaminho),
 	append(Birds, Caminho, List),
 	write('Labeling...'),nl,
 	!,
 	labeling([min,up], List).
+	
+testeXBirds(Birds):-
+	tabuleiro(Tabuleiro),
+	xBirdsComRestricoes(Caminho, Birds, Tabuleiro, 11, 1, 3).
 
 % SOLUCAO HIBRIDA
 	
