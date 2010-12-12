@@ -200,6 +200,9 @@ casasZero([H2|T2], [H|T], SizeCaminho):-
 % ROTINA RESPONSAVEL POR ENCONTRAR O CAMINHO E FAZER LABELING	
 	
 xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds):-
+	write('Tabuleiro a processar: '),
+	nl,
+	printTabuleiro(Tabuleiro, 1, SizeC),
 	NBirds is XBirds+2,
 	tabuleiroMask(T),
 	parser(Tabuleiro,AOut,BOut,COut,DOut,EOut,1),
@@ -265,6 +268,20 @@ printLinhaSol([H|T], S, Birds, [_|T2]):-
 printLinhaSol([_|T], S, Birds,[_|T2]):-
 	write('* '),
 	printLinhaSol(T, S, Birds, T2), !.	
+	
+printTabuleiro([],_,_):- nl.
+
+printTabuleiro([H|T], Num, Size):-
+	Size2 is Size+1,
+	Num == Size2,
+	nl,
+	printTabuleiro([H|T], 1, Size).
+	
+printTabuleiro([H|T], Num, Size):-
+	Num2 is Num+1,
+	write(H),
+	write(' '),
+	printTabuleiro(T,Num2, Size).
 	
 testeXBirds:-
 	%tabuleiro(Tabuleiro),
