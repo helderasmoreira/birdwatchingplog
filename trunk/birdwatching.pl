@@ -25,7 +25,7 @@ insert_at(X,L,K,R) :- remove_at(X,R,K,L).
 getPos(X,Y, Pos) :-
 	Pos is Y*11+X.
 	
-% DADO UM TABULEIRO, RETIRA OS PASSAROS DA MESMA COR E AGRUPA-OS EM LISTAS SEPARADAS
+% DADO UM TABULEIRO, RETIRA AS POSIÇOES DOS PASSAROS DA MESMA COR E AGRUPA-OS EM LISTAS SEPARADAS
 parser([],[],[],[],[],[],_).
 parser([2|R],[Indice|RA],BOut,COut,DOut,EOut, Indice) :-
 	Indice1 is Indice +1,
@@ -116,7 +116,7 @@ tabuleiroMask(T) :-
 		 0,1,1,1,1,1,1,1,1,1,0,
 		 0,0,0,0,0,0,0,0,0,0,0].		 
 
-% SOLUCAO COM TOTALMENTE COM RESTRICOES		 
+% SOLUCAO TOTALMENTE COM RESTRICOES		 
 
 % COLOCA AS RESTRICOES NAS VARIAS PECAS DO TABULEIRO	
 processaCaminho2(_,112,_,_,_,_,_,_):- !.
@@ -297,7 +297,7 @@ testeXBirds:-
 	tabuleiroThreeBirds(T3),
 	xBirdsComRestricoes(_, _, T3, 11, 3, 5).
 
-% SOLUCOES ALEATORIAS	
+% GERAÇAO DE TABULEIROS	
 randomBirdsWay(T, 1, T, _):-!.
 randomBirdsWay(T, B1, TFim, N):-
 	random(12, 110, X),
