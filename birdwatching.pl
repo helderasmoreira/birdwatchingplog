@@ -241,7 +241,7 @@ xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds, NBirds):-
 	write('Tempo de execucao: '),
 	write(Time),nl.
 	
-
+% IMPRIME AS POSICOES E ORDENS DOS PASSAROS NO CAMINHO
 printBirdsPos([],_,_).
 printBirdsPos([H|T], [H2|T2], Max):-
 	H \= Max,
@@ -249,7 +249,8 @@ printBirdsPos([H|T], [H2|T2], Max):-
 	printBirdsPos(T, T2, Max), !.
 printBirdsPos([_|T], [_|T2], Max):-
 	printBirdsPos(T, T2, Max).	
-	
+
+% IMPRIME A SOLUCAO NUM TABULEIRO	
 printSol(Caminho, _, Pos, _, _,_):-length(Caminho, Pos).
 printSol(Caminho, SizeC, Pos, MaxSizeCaminho, Birds, Tab):-
 	sublist(Caminho, Part, Pos, SizeC, Next),
@@ -285,6 +286,8 @@ printTabuleiro([H|T], Num, Size):-
 	write(' '),
 	printTabuleiro(T,Num2, Size).
 	
+	
+% TESTES VARIOS	
 testeXBirds:-
 	write('Resolucao de puzzles de Birdwatching'),nl,
 	tabuleiro(T1),
@@ -294,6 +297,7 @@ testeXBirds:-
 	tabuleiroThreeBirds(T3),
 	xBirdsComRestricoes(_, _, T3, 11, 3, 5).
 
+% SOLUCOES ALEATORIAS	
 randomBirdsWay(T, 1, T, _):-!.
 randomBirdsWay(T, B1, TFim, N):-
 	random(12, 110, X),
@@ -411,35 +415,4 @@ existeCaminho(Inicial,Final,T, TRet) :-
 	remove_at(_,T,Pos,TNovo),
 	insert_at(0,TNovo,Pos, TNovo2),
 	existeCaminho(P,Final,TNovo2, TRet).
-
-escolhePosicoes(Pecas,N,L,C):-
-	generatePuzzle(T, L, C),
-	length(Pecas,N),
-	findall(X-Y,verificaPeca(T, X,Y, 1),Sols),
-	escolhePosicoesAux(Pecas, Sols).
-		
-choose([], []).
-choose(List, Elt) :-
-	length(List, Length),
-	random(0, Length, Index),
-	nth0(Index, List, Elt).
-
-escolhePosicoesAux([],_).
-escolhePosicoesAux([H|T], PecasLivres):-
-	choose(PecasLivres, X),
-	member(X, [H]),
-	delete(PecasLivres, X, PecasLivresNovo),
-	escolhePosicoesAux(T, PecasLivresNovo).
-	
-verificaPeca(T,X,Y,Jogador) :- verificaPecaAux(T,X,Y,Jogador,1).
-verificaPecaAux([T|_],X,Y,Jogador,Y) :-
-	verificaPecaLinha(T,X,Jogador, 1).
-verificaPecaAux([_|R],X,Y,Jogador,Linha) :-
-	Linha2 is Linha+1,
-	verificaPecaAux(R,X,Y,Jogador,Linha2).
-
-verificaPecaLinha([Jogador|_], X, Jogador, X).
-verificaPecaLinha([_|R], X, Jogador, Coluna) :-
-	N1 is Coluna+1,
-	verificaPecaLinha(R, X, Jogador, N1).
 	
