@@ -62,7 +62,7 @@ tabuleiro(T) :-
 		 0,1,5,1,1,6,1,1,6,1,0,
 		 0,0,0,0,0,0,0,0,0,0,0].
  
-/*tabuleiro_2(T) :-
+tabuleiro_2(T) :-
 	T = [0,0,0,0,0,0,0,0,0,0,0,
 		 0,1,1,5,1,1,3,4,1,1,0,
 		 0,1,0,1,0,1,0,1,0,1,1,
@@ -73,7 +73,7 @@ tabuleiro(T) :-
 		 0,1,1,1,1,1,1,1,1,1,0,
 		 1,1,0,1,0,1,0,1,0,1,0,
 		 0,1,1,2,3,4,5,6,1,1,0,
-		 0,0,0,0,0,0,0,0,0,0,0].*/
+		 0,0,0,0,0,0,0,0,0,0,0].
 
 tabuleiroTwoBirds(T) :-
 	T = [0,0,0,0,0,0,0,0,0,0,0,
@@ -199,7 +199,8 @@ casasZero([H2|T2], [H|T], SizeCaminho):-
 	
 % ROTINA RESPONSAVEL POR ENCONTRAR O CAMINHO E FAZER LABELING	
 	
-xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds, NBirds):-
+xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds):-
+	NBirds is XBirds+2,
 	tabuleiroMask(T),
 	parser(Tabuleiro,AOut,BOut,COut,DOut,EOut,1),
 	append(AOut, BOut, P),
@@ -266,10 +267,11 @@ printLinhaSol([_|T], S, Birds,[_|T2]):-
 	printLinhaSol(T, S, Birds, T2), !.	
 	
 testeXBirds:-
-	tabuleiro(Tabuleiro),
+	%tabuleiro(Tabuleiro),
 	%tabuleiroTwoBirds(Tabuleiro),
+	tabuleiroThreeBirds(Tabuleiro),
 	write('Resolucao de puzzles de Birdwatching'),nl,
-	xBirdsComRestricoes(_, _, Tabuleiro, 11, 1, 3).
+	xBirdsComRestricoes(_, _, Tabuleiro, 11, 3).
 
 % SOLUCAO HIBRIDA
 	
