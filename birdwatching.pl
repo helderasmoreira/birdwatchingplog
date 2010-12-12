@@ -88,6 +88,20 @@ tabuleiroTwoBirds(T) :-
 		 0,1,1,1,1,1,3,5,1,2,0,
 		 0,0,0,0,0,0,0,0,0,0,0].		 
 
+tabuleiroThreeBirds(T) :-
+	T = [0,0,0,0,0,0,0,0,0,0,0,
+ 0,6,6,6,4,5,1,1,1,1,0,
+ 0,1,0,5,0,6,0,2,0,1,1,
+ 0,1,3,1,2,1,5,1,2,1,0,
+ 0,0,4,0,1,0,2,0,4,0,0,
+ 0,0,1,1,4,1,6,1,5,0,0,
+ 0,0,1,0,1,0,1,0,1,0,0,
+ 0,1,3,1,3,1,3,1,1,1,0,
+ 1,1,0,1,0,1,0,1,0,1,0,
+ 0,1,4,1,1,1,5,3,1,2,0,
+ 0,0,0,0,0,0,0,0,0,0,0].
+		 
+
 % MASCARA DO TABULEIRO		 
 tabuleiroMask(T) :-
 	T = [0,0,0,0,0,0,0,0,0,0,0,
@@ -204,7 +218,7 @@ xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds, NBirds):-
 	element(Entrada, Caminho, 1),
 	element(Entrada2, Caminho, 2),
 	count(SizeCaminho, Caminho, #=, Sz),
-	Sz2 #= SizeTab-Sz #/\ Sz3 #= Sz2-1 #/\ Difs #= Sz2+1,
+	Sz2 #= SizeTab-Sz #/\ Sz3 #= Sz2-1,
 	Saida is SizeC*3,
 	Saida2 is Saida-1,
 	element(Saida2, Caminho, Sz3),
@@ -215,11 +229,45 @@ xBirdsComRestricoes(Caminho, Birds, Tabuleiro, SizeC, XBirds, NBirds):-
 	append(Birds, Caminho, List),
 	write('Labeling...'),nl,
 	!,
-	labeling([min,up], List).
+	labeling([min,up], List),
+	write('Solucao do problema:'),nl,
+	printSol(Caminho, SizeC, 0, SizeCaminho, Birds),
+	write('Passaro - Ordem do caminho: '),nl,
+	printBirdsPos(Birds, P4, SizeCaminho).
 	
-testeXBirds(Birds):-
+
+printBirdsPos([],_,_).
+printBirdsPos([H|T], [H2|T2], Max):-
+	H \= Max,
+	write(H2-H), write(' '),
+	printBirdsPos(T, T2, Max), !.
+printBirdsPos([_|T], [_|T2], Max):-
+	printBirdsPos(T, T2, Max).	
+	
+printSol(Caminho, _, Pos, _, _):-length(Caminho, Pos).
+printSol(Caminho, SizeC, Pos, MaxSizeCaminho, Birds):-
+	sublist(Caminho, Part, Pos, SizeC, Next),
+	printLinhaSol(Part, MaxSizeCaminho, Birds),nl,
+	length(Caminho, S),
+	Next2 is S-Next,
+	printSol(Caminho, SizeC, Next2, MaxSizeCaminho, Birds).
+	
+printLinhaSol([], _, _).
+printLinhaSol([H|T], H, Birds):-
+	write('0 '),
+	printLinhaSol(T, H, Birds), !.
+printLinhaSol([H|T], S, Birds):-
+	member(H, Birds),
+	write('B '),
+	printLinhaSol(T, S, Birds), !.
+printLinhaSol([_|T], S, Birds):-
+	write('* '),
+	printLinhaSol(T, S, Birds), !.	
+	
+testeXBirds:-
 	tabuleiro(Tabuleiro),
-	xBirdsComRestricoes(Caminho, Birds, Tabuleiro, 11, 1, 3).
+	write('Resolucao de puzzles de Birdwatching'),nl,
+	xBirdsComRestricoes(_, _, Tabuleiro, 11, 1, 3).
 
 % SOLUCAO HIBRIDA
 	
@@ -286,26 +334,7 @@ twoBirds(PosicoesEscolhidas) :-
 	member(X10, Posicoes),
 	existeCaminho(X9, X10, T9, T10),	
 	existeCaminho(X10,33,T10,_).	
-	
-testing:-
-	oneBird(P),
-	fd_statistics,
-	statistics(runtime, [_|T]),
-	write(T),nl,
-	oneBird2(P2),
-	fd_statistics,
-	statistics(runtime, [_|T2]),
-	write(T2),nl,
-	twoBirds(P3),
-	fd_statistics,
-	statistics(runtime, [_|T3]),
-	write(T3),nl,
-	twoBirds2(P4),
-	fd_statistics,
-	statistics(runtime, [_|T4]),
-	write(T4),nl.
-	
-	
+		
 adjacente(Inicial,Final, Tabuleiro):- Inicial >= 0, Inicial < 121, Final is Inicial-1, nth1(Final, Tabuleiro,1).
 adjacente(Inicial,Final, Tabuleiro):- Inicial >= 0, Inicial < 121, Final is Inicial+1, nth1(Final, Tabuleiro,1).
 adjacente(Inicial,Final, Tabuleiro):- Inicial =< 110, Final is Inicial+11, nth1(Final, Tabuleiro,1) .
